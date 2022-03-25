@@ -186,6 +186,67 @@ resource "azurerm_linux_virtual_machine" "PgDataServer" {
   }
 }
 /*----------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------------------*/
+# THIS IS A LINUX MACHINE SCALE SET FOR THE ELASTIC SOLUTION AGAIN THERE ARE SPECIEL FETURE'S
+# THAT ARE DIFFERNT FROM THE MINIMUM STANDARD REQUIRMENTS AND THAT ARE CUSTOMED TO OUR NEEDS
+/*----------------------------------------------------------------------------------------*/
+resource "azurerm_linux_virtual_machine_scale_set" "AppScaleSet" {
+  name                            = "AppScaleSet"
+  resource_group_name             = azurerm_resource_group.RG.name
+  location                        = azurerm_resource_group.RG.location
+  sku                             = "Standard_F2"
+  instances                       = 2
+    /*---------required section choosing-----*/ 
+  /*  to connect via user name and password  */
+  /*--instead of the usuale ssh safer mathod----*/
+  admin_username                  = "adminuser"
+  admin_password                  = "Hakolzorem2022"
+  disable_password_authentication = false
+  /*---------------------------------------------*/
+  # health_probe_id                 = azurerm_lb_probe.Helthprobe.id  ##not needed at the momment. uncomment if so
+  upgrade_mode                    = "Automatic" 
 
+
+  /*---------------------------------------*/
+  # this line run's a script with command line 
+  #  that configurate the App on the instances 
+  #              when created 
+  /*---------------------------------------*/
+  custom_data                     = filebase64("RunUp.sh")
+
+
+  source_image_reference {
+    publisher = "Canonical"
+    offer     = "UbuntuServer"
+    sku       = "16.04-LTS"
+    version   = "latest"
+  }
+
+  os_disk {
+    storage_account_type = "Standard_LRS"
+    caching              = "ReadWrite"
+  }
+
+  network_interface {
+    name    = "AppScaleSet-nic"
+    primary = true
+
+    ip_configuration {
+      name      = "internal"
+      primary   = true
+      subnet_id = azurerm_subnet.Web_Tier.id
+
+      /*  this line connects the scaile set to a backend pool      */
+      /*  of the load balancer we want to hanlde th...well load :) */
+      load_balancer_backend_address_pool_ids = [azurerm_lb_backend_address_pool.AppScaleSet.id]
+    }
+  }
+  # lifecycle { 
+  #   ignore_changes = ["instances"]
+  # }
+
+
+}
+/*----------------------------------------------------------------------------------------*/
 
 
