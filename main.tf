@@ -129,4 +129,63 @@ resource "azurerm_bastion_host" "BastionServer" {
 /*----------------------------------------------------------------------------------------*/
 
 
+/*----------------------------------------------------------------------------------------*/
+#NETWORK INTERFACES FOR THE POSTGRES DATA SERVER
+/*----------------------------------------------------------------------------------------*/
+resource "azurerm_network_interface" "PgDataServer" {
+  name                = "PgDataServer-nic"
+  location            = azurerm_resource_group.RG.location
+  resource_group_name = azurerm_resource_group.RG.name
+
+  ip_configuration {
+    name                          = "internal"
+    subnet_id                     = azurerm_subnet.Data_Tier.id
+    private_ip_address_allocation = "Dynamic"
+
+  }
+}
+/*----------------------------------------------------------------------------------------*/
+
+
+/*----------------------------------------------------------------------------------------*/
+#THIS IS A LINUX VIRTUAL MACHINE FOR THE DATA BASE IT HAS SOME SPACIEL FUNCTIONALITYS 
+#THAT ARE EXPLAIND IN DETAILE INSIDE THE BLOCK
+/*----------------------------------------------------------------------------------------*/
+resource "azurerm_linux_virtual_machine" "PgDataServer" {
+  name                            = "${var.prefix.PgDataServerName}-vm"
+  resource_group_name             = azurerm_resource_group.RG.name
+  location                        = azurerm_resource_group.RG.location
+  size                            = "Standard_F2"
+  /*---------required section choosing-----*/ 
+  /*  to connect via user name and password  */
+  /*--instead of the usuale ssh safer mathod----*/
+  admin_username                  = "adminuser"      
+  admin_password                  = "Hakolzorem2022"
+  disable_password_authentication = false
+  /*------------------------------------------------------*/
+  network_interface_ids = [
+    azurerm_network_interface.PgDataServer.id,
+  ]
+
+  /*---------------------------------------*/
+  # this line run's a script with command line 
+  #  that configurate the postgres server
+  /*---------------------------------------*/
+  custom_data = filebase64("DataServerRunUp.sh")
+
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
+  }
+
+  source_image_reference {
+    publisher = "Canonical"
+    offer     = "UbuntuServer"
+    sku       = "16.04-LTS"
+    version   = "latest"
+  }
+}
+/*----------------------------------------------------------------------------------------*/
+
+
 
