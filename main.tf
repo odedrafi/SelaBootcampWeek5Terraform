@@ -49,3 +49,32 @@ resource "azurerm_subnet" "Web_Tier" {
 
 }
 /*----------------------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------------------*/
+# Azure Public Ip for Load Balancer
+/*----------------------------------------------------------------------------------------*/
+resource "azurerm_public_ip" "LoadBalacerPublicIp" {
+  name                = "LoadBalacerPublicIp"
+  resource_group_name = azurerm_resource_group.RG.name
+  location            = azurerm_resource_group.RG.location
+  allocation_method   = "Static"
+  sku                 = "Standard"
+}
+/*----------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------------------*/
+# SIMPLE LOAD BALANCER BLOCK
+/*----------------------------------------------------------------------------------------*/
+resource "azurerm_lb" "App-LoadBalacer" {
+  name                = "App-LoadBalacer"
+  location            = azurerm_resource_group.RG.location
+  resource_group_name = azurerm_resource_group.RG.name
+  sku                 = "Standard"
+
+  frontend_ip_configuration {
+    name                 = "frontend-ip"
+    public_ip_address_id = azurerm_public_ip.LoadBalacerPublicIp.id
+  }
+
+
+}
+/*----------------------------------------------------------------------------------------*/
