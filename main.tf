@@ -78,3 +78,55 @@ resource "azurerm_lb" "App-LoadBalacer" {
 
 }
 /*----------------------------------------------------------------------------------------*/
+
+
+/*----------------------------------------------------------------------------------------*/
+#PROBE BLOCK REQUIRED FOR THE OPERATION OF LOAD BALNCER
+/*----------------------------------------------------------------------------------------*/
+resource "azurerm_lb_probe" "Helthprobe" {
+  resource_group_name = azurerm_resource_group.RG.name
+  loadbalancer_id     = azurerm_lb.App-LoadBalacer.id
+  name                = "Helthprobe"
+  port                = 8080
+}
+/*----------------------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------------------*/
+#CREATING BACKEND POOL's FOR THE LOAD BALANCER
+/*----------------------------------------------------------------------------------------*/
+#Poll for Scale set "elastic" infrastracture
+resource "azurerm_lb_backend_address_pool" "AppScaleSet" {
+  loadbalancer_id = azurerm_lb.App-LoadBalacer.id
+  name            = "AppScaleSet"
+  depends_on = [
+    azurerm_lb.App-LoadBalacer
+  ]
+}
+/*----------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------------------*/
+#BASTION SERVER BLOCK
+#PROVIDING A SECURE WAY INTO OUR VIRTUAL NETWORK TO REACH THE VM'S AND DATA SERVERS
+/*----------------------------------------------------------------------------------------*/
+resource "azurerm_public_ip" "BastionPublicIp" {
+  name                = "BastionPublicIp"
+  location            = azurerm_resource_group.RG.location
+  resource_group_name = azurerm_resource_group.RG.name
+  allocation_method   = "Static"
+  sku                 = "Standard"
+}
+
+resource "azurerm_bastion_host" "BastionServer" {
+  name                = "BastionServer"
+  location            = azurerm_resource_group.RG.location
+  resource_group_name = azurerm_resource_group.RG.name
+
+  ip_configuration {
+    name                 = "configuration"
+    subnet_id            = azurerm_subnet.AzureBastionSubnet.id
+    public_ip_address_id = azurerm_public_ip.BastionPublicIp.id
+  }
+}
+/*----------------------------------------------------------------------------------------*/
+
+
+
