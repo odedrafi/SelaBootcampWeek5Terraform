@@ -3,7 +3,7 @@
 
 
 
-# output "password" {
-#   sensitive = true
-#   value = var.secret_password
-# }
+output "password" {
+  sensitive = true
+  value = var.admin_password
+}
