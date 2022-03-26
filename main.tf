@@ -175,8 +175,8 @@ resource "azurerm_linux_virtual_machine" "PgDataServer" {
   /*---------required section choosing-----*/
   /*  to connect via user name and password  */
   /*--instead of the usuale ssh safer mathod----*/
-  admin_username                  = "adminuser"
-  admin_password                  = "Hakolzorem2022"
+  admin_username                  = var.admin_user_name
+  admin_password                  = var.admin_password
   disable_password_authentication = false
   /*------------------------------------------------------*/
   network_interface_ids = [
@@ -215,8 +215,8 @@ resource "azurerm_linux_virtual_machine_scale_set" "AppScaleSet" {
   /*---------required section choosing-----*/
   /*  to connect via user name and password  */
   /*--instead of the usuale ssh safer mathod----*/
-  admin_username                  = "adminuser"
-  admin_password                  = "Hakolzorem2022"
+  admin_username                  = var.admin_user_name
+  admin_password                  = var.admin_password
   disable_password_authentication = false
   /*---------------------------------------------*/
 
@@ -258,9 +258,9 @@ resource "azurerm_linux_virtual_machine_scale_set" "AppScaleSet" {
       load_balancer_backend_address_pool_ids = [azurerm_lb_backend_address_pool.AppScaleSet.id]
     }
   }
-  # lifecycle { 
-  #   ignore_changes = ["instances"]
-  # }
+  lifecycle { 
+    ignore_changes = [instances]
+  }
 
 
 }
