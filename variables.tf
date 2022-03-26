@@ -35,12 +35,12 @@ variable "location" {
 variable "admin_user_name" {
   type        = string
   description = "user name vor vm login"
-  default     = "adminasadasd"
+  default     = "Input your user name"
 
 }
 variable "admin_password" {
   type        = string
   description = "password for vm login"
-  default     = "passwordTobeadd"
+  default     = "Input your password here"
 
 }
