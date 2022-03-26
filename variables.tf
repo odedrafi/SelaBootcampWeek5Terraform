@@ -44,9 +44,3 @@ variable "admin_password" {
   default     = "passwordTobeadd"
 
 }
-
-# variable "password" {
-#     type = string
-#     description = "Output the password like requested :)"
-
-# }

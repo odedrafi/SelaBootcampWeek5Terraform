@@ -45,7 +45,7 @@ resource "azurerm_subnet" "Web_Tier" {
   resource_group_name  = azurerm_resource_group.RG.name
   virtual_network_name = azurerm_virtual_network.vnet.name
   address_prefixes     = ["10.30.1.0/24"]
-  # sku                 = "Standard"
+
 
 }
 /*----------------------------------------------------------------------------------------*/
@@ -82,17 +82,17 @@ resource "azurerm_lb" "App-LoadBalacer" {
 
 /*Configuring the load balncer inbound rule to allow outside access to the load balancer(Like a NSG)*/
 
- resource "azurerm_lb_rule" "AcceseRole" {
-   resource_group_name            = azurerm_resource_group.RG.name
-   loadbalancer_id                = azurerm_lb.App-LoadBalacer.id
-   name                           = "LBRule"
-   protocol                       = "Tcp"
-   frontend_port                  = 8080
-   backend_port                   = 8080
-   frontend_ip_configuration_name = "frontend-ip"
-   backend_address_pool_ids       = [azurerm_lb_backend_address_pool.AppScaleSet.id]
-   probe_id                       = azurerm_lb_probe.Helthprobe.id
- }
+resource "azurerm_lb_rule" "AcceseRole" {
+  resource_group_name            = azurerm_resource_group.RG.name
+  loadbalancer_id                = azurerm_lb.App-LoadBalacer.id
+  name                           = "LBRule"
+  protocol                       = "Tcp"
+  frontend_port                  = 8080
+  backend_port                   = 8080
+  frontend_ip_configuration_name = "frontend-ip"
+  backend_address_pool_ids       = [azurerm_lb_backend_address_pool.AppScaleSet.id]
+  probe_id                       = azurerm_lb_probe.Helthprobe.id
+}
 
 /*----------------------------------------------------------------------------------------*/
 #PROBE BLOCK REQUIRED FOR THE OPERATION OF LOAD BALNCER
@@ -161,6 +161,23 @@ resource "azurerm_network_interface" "PgDataServer" {
   }
 }
 /*----------------------------------------------------------------------------------------*/
+
+
+
+module "Scale_set_module" {
+
+  source = "./Scalsetmodule"
+
+  group_name = azurerm_resource_group.RG.name
+  admin_user_name = var.admin_user_name
+  admin_password                         = var.admin_password
+  azurerm_subnet_id                      = azurerm_subnet.Web_Tier.id
+  azurerm_lb_backend_pool_AppScaleSet_id = azurerm_lb_backend_address_pool.AppScaleSet.id
+  group_location        = azurerm_resource_group.RG.location
+  
+
+}
+
 
 
 /*----------------------------------------------------------------------------------------*/
@@ -258,7 +275,7 @@ resource "azurerm_linux_virtual_machine_scale_set" "AppScaleSet" {
       load_balancer_backend_address_pool_ids = [azurerm_lb_backend_address_pool.AppScaleSet.id]
     }
   }
-  lifecycle { 
+  lifecycle {
     ignore_changes = [instances]
   }
 
