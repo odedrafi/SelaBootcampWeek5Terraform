@@ -31,3 +31,10 @@ variable "location" {
   default     = "East US"
 
 }
+
+
+# variable "password" {
+#     type = string
+#     description = "Output the password like requested :)"
+
+# }

@@ -80,6 +80,20 @@ resource "azurerm_lb" "App-LoadBalacer" {
 /*----------------------------------------------------------------------------------------*/
 
 
+/*Configuring the load balncer inbound rule to allow outside access to the load balancer(Like a NSG)*/
+
+ resource "azurerm_lb_rule" "AcceseRole" {
+   resource_group_name            = azurerm_resource_group.RG.name
+   loadbalancer_id                = azurerm_lb.App-LoadBalacer.id
+   name                           = "LBRule"
+   protocol                       = "Tcp"
+   frontend_port                  = 8080
+   backend_port                   = 8080
+   frontend_ip_configuration_name = "frontend-ip"
+   backend_address_pool_ids       = [azurerm_lb_backend_address_pool.AppScaleSet.id]
+   probe_id                       = azurerm_lb_probe.Helthprobe.id
+ }
+
 /*----------------------------------------------------------------------------------------*/
 #PROBE BLOCK REQUIRED FOR THE OPERATION OF LOAD BALNCER
 /*----------------------------------------------------------------------------------------*/
@@ -103,6 +117,8 @@ resource "azurerm_lb_backend_address_pool" "AppScaleSet" {
   ]
 }
 /*----------------------------------------------------------------------------------------*/
+
+
 /*----------------------------------------------------------------------------------------*/
 #BASTION SERVER BLOCK
 #PROVIDING A SECURE WAY INTO OUR VIRTUAL NETWORK TO REACH THE VM'S AND DATA SERVERS
@@ -152,14 +168,14 @@ resource "azurerm_network_interface" "PgDataServer" {
 #THAT ARE EXPLAIND IN DETAILE INSIDE THE BLOCK
 /*----------------------------------------------------------------------------------------*/
 resource "azurerm_linux_virtual_machine" "PgDataServer" {
-  name                            = "${var.prefix.PgDataServerName}-vm"
-  resource_group_name             = azurerm_resource_group.RG.name
-  location                        = azurerm_resource_group.RG.location
-  size                            = "Standard_F2"
-  /*---------required section choosing-----*/ 
+  name                = "${var.prefix.PgDataServerName}-vm"
+  resource_group_name = azurerm_resource_group.RG.name
+  location            = azurerm_resource_group.RG.location
+  size                = "Standard_F2"
+  /*---------required section choosing-----*/
   /*  to connect via user name and password  */
   /*--instead of the usuale ssh safer mathod----*/
-  admin_username                  = "adminuser"      
+  admin_username                  = "adminuser"
   admin_password                  = "Hakolzorem2022"
   disable_password_authentication = false
   /*------------------------------------------------------*/
@@ -191,20 +207,21 @@ resource "azurerm_linux_virtual_machine" "PgDataServer" {
 # THAT ARE DIFFERNT FROM THE MINIMUM STANDARD REQUIRMENTS AND THAT ARE CUSTOMED TO OUR NEEDS
 /*----------------------------------------------------------------------------------------*/
 resource "azurerm_linux_virtual_machine_scale_set" "AppScaleSet" {
-  name                            = "AppScaleSet"
-  resource_group_name             = azurerm_resource_group.RG.name
-  location                        = azurerm_resource_group.RG.location
-  sku                             = "Standard_F2"
-  instances                       = 2
-    /*---------required section choosing-----*/ 
+  name                = "AppScaleSet"
+  resource_group_name = azurerm_resource_group.RG.name
+  location            = azurerm_resource_group.RG.location
+  sku                 = "Standard_F2"
+  instances           = 2
+  /*---------required section choosing-----*/
   /*  to connect via user name and password  */
   /*--instead of the usuale ssh safer mathod----*/
   admin_username                  = "adminuser"
   admin_password                  = "Hakolzorem2022"
   disable_password_authentication = false
   /*---------------------------------------------*/
+
   # health_probe_id                 = azurerm_lb_probe.Helthprobe.id  ##not needed at the momment. uncomment if so
-  upgrade_mode                    = "Automatic" 
+  upgrade_mode = "Automatic"
 
 
   /*---------------------------------------*/
@@ -212,7 +229,7 @@ resource "azurerm_linux_virtual_machine_scale_set" "AppScaleSet" {
   #  that configurate the App on the instances 
   #              when created 
   /*---------------------------------------*/
-  custom_data                     = filebase64("RunUp.sh")
+  custom_data = filebase64("RunUp.sh")
 
 
   source_image_reference {

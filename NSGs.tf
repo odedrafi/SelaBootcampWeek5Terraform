@@ -1,7 +1,7 @@
 # for more readable tamplate we devide as much as possible 
 # this section is for the network security groups we need 
 
- /*----------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------------------*/
 # A NETWORK SECURITY GROUP PLUS AN ASSOSIATION TO THE WEB TIER SUBNET 
 # this network security group will have the azure standard plus an openning of port 8080 
 #  to startlistaning for app request 
