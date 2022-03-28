@@ -64,7 +64,7 @@ resource "azurerm_linux_virtual_machine_scale_set" "AppScaleSet" {
 
       /*  this line connects the scaile set to a backend pool      */
       /*  of the load balancer we want to hanlde th...well load :) */
-      load_balancer_backend_address_pool_ids = [var.azurerm_lb_backend_pool_AppScaleSet_id]
+      load_balancer_backend_address_pool_ids = [var.azurerm_lb_backend_pool_Scale_set_module_id]
     }
   }
   lifecycle {

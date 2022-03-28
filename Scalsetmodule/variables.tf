@@ -18,12 +18,13 @@ variable admin_password{
 
 
 
+
 variable azurerm_subnet_id{
 
       type        = string
 
 }
-variable azurerm_lb_backend_pool_AppScaleSet_id {
+variable azurerm_lb_backend_pool_Scale_set_module_id {
 
       type        = string
 

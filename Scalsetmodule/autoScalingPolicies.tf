@@ -1,7 +1,7 @@
 resource "azurerm_monitor_autoscale_setting" "AutoScaling" {
   name                = "AutoScaling"
-  resource_group_name = azurerm_resource_group.RG.name
-  location            = azurerm_resource_group.RG.location
+  resource_group_name = var.group_name
+  location            = var.group_location
   target_resource_id  = azurerm_linux_virtual_machine_scale_set.AppScaleSet.id
 
   profile {

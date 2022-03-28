@@ -90,7 +90,7 @@ resource "azurerm_lb_rule" "AcceseRole" {
   frontend_port                  = 8080
   backend_port                   = 8080
   frontend_ip_configuration_name = "frontend-ip"
-  backend_address_pool_ids       = [azurerm_lb_backend_address_pool.AppScaleSet.id]
+  backend_address_pool_ids       = [azurerm_lb_backend_address_pool.Scale_set_module.id]
   probe_id                       = azurerm_lb_probe.Helthprobe.id
 }
 
@@ -109,9 +109,9 @@ resource "azurerm_lb_probe" "Helthprobe" {
 #CREATING BACKEND POOL's FOR THE LOAD BALANCER
 /*----------------------------------------------------------------------------------------*/
 #Poll for Scale set "elastic" infrastracture
-resource "azurerm_lb_backend_address_pool" "AppScaleSet" {
+resource "azurerm_lb_backend_address_pool" "Scale_set_module" {
   loadbalancer_id = azurerm_lb.App-LoadBalacer.id
-  name            = "AppScaleSet"
+  name            = "Scale_set_module"
   depends_on = [
     azurerm_lb.App-LoadBalacer
   ]
@@ -119,30 +119,30 @@ resource "azurerm_lb_backend_address_pool" "AppScaleSet" {
 /*----------------------------------------------------------------------------------------*/
 
 
-/*----------------------------------------------------------------------------------------*/
-#BASTION SERVER BLOCK
-#PROVIDING A SECURE WAY INTO OUR VIRTUAL NETWORK TO REACH THE VM'S AND DATA SERVERS
-/*----------------------------------------------------------------------------------------*/
-resource "azurerm_public_ip" "BastionPublicIp" {
-  name                = "BastionPublicIp"
-  location            = azurerm_resource_group.RG.location
-  resource_group_name = azurerm_resource_group.RG.name
-  allocation_method   = "Static"
-  sku                 = "Standard"
-}
+# /*----------------------------------------------------------------------------------------*/
+# #BASTION SERVER BLOCK
+# #PROVIDING A SECURE WAY INTO OUR VIRTUAL NETWORK TO REACH THE VM'S AND DATA SERVERS
+# /*----------------------------------------------------------------------------------------*/
+# resource "azurerm_public_ip" "BastionPublicIp" {
+#   name                = "BastionPublicIp"
+#   location            = azurerm_resource_group.RG.location
+#   resource_group_name = azurerm_resource_group.RG.name
+#   allocation_method   = "Static"
+#   sku                 = "Standard"
+# }
 
-resource "azurerm_bastion_host" "BastionServer" {
-  name                = "BastionServer"
-  location            = azurerm_resource_group.RG.location
-  resource_group_name = azurerm_resource_group.RG.name
+# resource "azurerm_bastion_host" "BastionServer" {
+#   name                = "BastionServer"
+#   location            = azurerm_resource_group.RG.location
+#   resource_group_name = azurerm_resource_group.RG.name
 
-  ip_configuration {
-    name                 = "configuration"
-    subnet_id            = azurerm_subnet.AzureBastionSubnet.id
-    public_ip_address_id = azurerm_public_ip.BastionPublicIp.id
-  }
-}
-/*----------------------------------------------------------------------------------------*/
+#   ip_configuration {
+#     name                 = "configuration"
+#     subnet_id            = azurerm_subnet.AzureBastionSubnet.id
+#     public_ip_address_id = azurerm_public_ip.BastionPublicIp.id
+#   }
+# }
+# /*----------------------------------------------------------------------------------------*/
 
 
 /*----------------------------------------------------------------------------------------*/
@@ -172,10 +172,10 @@ module "Scale_set_module" {
   admin_user_name = var.admin_user_name
   admin_password                         = var.admin_password
   azurerm_subnet_id                      = azurerm_subnet.Web_Tier.id
-  azurerm_lb_backend_pool_AppScaleSet_id = azurerm_lb_backend_address_pool.AppScaleSet.id
+  azurerm_lb_backend_pool_Scale_set_module_id = azurerm_lb_backend_address_pool.Scale_set_module.id
   group_location        = azurerm_resource_group.RG.location
   
-
+ 
 }
 
 
@@ -204,7 +204,7 @@ resource "azurerm_linux_virtual_machine" "PgDataServer" {
   # this line run's a script with command line 
   #  that configurate the postgres server
   /*---------------------------------------*/
-  custom_data = filebase64("DataServerRunUp.sh")
+  custom_data = filebase64("/DataServerRunUp.sh")
 
   os_disk {
     caching              = "ReadWrite"
@@ -218,69 +218,69 @@ resource "azurerm_linux_virtual_machine" "PgDataServer" {
     version   = "latest"
   }
 }
-/*----------------------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------------------*/
-# THIS IS A LINUX MACHINE SCALE SET FOR THE ELASTIC SOLUTION AGAIN THERE ARE SPECIEL FETURE'S
-# THAT ARE DIFFERNT FROM THE MINIMUM STANDARD REQUIRMENTS AND THAT ARE CUSTOMED TO OUR NEEDS
-/*----------------------------------------------------------------------------------------*/
-resource "azurerm_linux_virtual_machine_scale_set" "AppScaleSet" {
-  name                = "AppScaleSet"
-  resource_group_name = azurerm_resource_group.RG.name
-  location            = azurerm_resource_group.RG.location
-  sku                 = "Standard_F2"
-  instances           = 2
-  /*---------required section choosing-----*/
-  /*  to connect via user name and password  */
-  /*--instead of the usuale ssh safer mathod----*/
-  admin_username                  = var.admin_user_name
-  admin_password                  = var.admin_password
-  disable_password_authentication = false
-  /*---------------------------------------------*/
+# /*----------------------------------------------------------------------------------------*/
+# /*----------------------------------------------------------------------------------------*/
+# # THIS IS A LINUX MACHINE SCALE SET FOR THE ELASTIC SOLUTION AGAIN THERE ARE SPECIEL FETURE'S
+# # THAT ARE DIFFERNT FROM THE MINIMUM STANDARD REQUIRMENTS AND THAT ARE CUSTOMED TO OUR NEEDS
+# /*----------------------------------------------------------------------------------------*/
+# resource "azurerm_linux_virtual_machine_scale_set" "AppScaleSet" {
+#   name                = "AppScaleSet"
+#   resource_group_name = azurerm_resource_group.RG.name
+#   location            = azurerm_resource_group.RG.location
+#   sku                 = "Standard_F2"
+#   instances           = 2
+#   /*---------required section choosing-----*/
+#   /*  to connect via user name and password  */
+#   /*--instead of the usuale ssh safer mathod----*/
+#   admin_username                  = var.admin_user_name
+#   admin_password                  = var.admin_password
+#   disable_password_authentication = false
+#   /*---------------------------------------------*/
 
-  # health_probe_id                 = azurerm_lb_probe.Helthprobe.id  ##not needed at the momment. uncomment if so
-  upgrade_mode = "Automatic"
-
-
-  /*---------------------------------------*/
-  # this line run's a script with command line 
-  #  that configurate the App on the instances 
-  #              when created 
-  /*---------------------------------------*/
-  custom_data = filebase64("RunUp.sh")
+#   # health_probe_id                 = azurerm_lb_probe.Helthprobe.id  ##not needed at the momment. uncomment if so
+#   upgrade_mode = "Automatic"
 
 
-  source_image_reference {
-    publisher = "Canonical"
-    offer     = "UbuntuServer"
-    sku       = "16.04-LTS"
-    version   = "latest"
-  }
-
-  os_disk {
-    storage_account_type = "Standard_LRS"
-    caching              = "ReadWrite"
-  }
-
-  network_interface {
-    name    = "AppScaleSet-nic"
-    primary = true
-
-    ip_configuration {
-      name      = "internal"
-      primary   = true
-      subnet_id = azurerm_subnet.Web_Tier.id
-
-      /*  this line connects the scaile set to a backend pool      */
-      /*  of the load balancer we want to hanlde th...well load :) */
-      load_balancer_backend_address_pool_ids = [azurerm_lb_backend_address_pool.AppScaleSet.id]
-    }
-  }
-  lifecycle {
-    ignore_changes = [instances]
-  }
+#   /*---------------------------------------*/
+#   # this line run's a script with command line 
+#   #  that configurate the App on the instances 
+#   #              when created 
+#   /*---------------------------------------*/
+#   # custom_data = filebase64("RunUp.sh")
 
 
-}
-/*----------------------------------------------------------------------------------------*/
+#   source_image_reference {
+#     publisher = "Canonical"
+#     offer     = "UbuntuServer"
+#     sku       = "16.04-LTS"
+#     version   = "latest"
+#   }
+
+#   os_disk {
+#     storage_account_type = "Standard_LRS"
+#     caching              = "ReadWrite"
+#   }
+
+#   network_interface {
+#     name    = "AppScaleSet-nic"
+#     primary = true
+
+#     ip_configuration {
+#       name      = "internal"
+#       primary   = true
+#       subnet_id = azurerm_subnet.Web_Tier.id
+
+#       /*  this line connects the scaile set to a backend pool      */
+#       /*  of the load balancer we want to hanlde th...well load :) */
+#       load_balancer_backend_address_pool_ids = [azurerm_lb_backend_address_pool.AppScaleSet.id]
+#     }
+#   }
+#   lifecycle {
+#     ignore_changes = [instances]
+#   }
+
+
+# }
+# /*----------------------------------------------------------------------------------------*/
 
 
