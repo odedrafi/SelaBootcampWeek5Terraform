@@ -38,7 +38,7 @@ resource "azurerm_linux_virtual_machine_scale_set" "AppScaleSet" {
   #  that configurate the App on the instances 
   #              when created 
   /*---------------------------------------*/
-  custom_data = filebase64("RunUp.sh")
+  custom_data = base64encode(templatefile("./Scalsetmodule/RunUp.tftpl",local.vars))
 
 
   source_image_reference {

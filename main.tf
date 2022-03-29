@@ -23,19 +23,19 @@ resource "azurerm_subnet" "Data_Tier" {
   resource_group_name  = azurerm_resource_group.RG.name
   virtual_network_name = azurerm_virtual_network.vnet.name
   address_prefixes     = ["10.30.2.0/24"]
-}
-/*----------------------------------------------------------------------------------------*/
+  # enforce_private_link_endpoint_network_policies = true
+    service_endpoints    = ["Microsoft.Storage"]
+  delegation {
+    name = "fs"
+    service_delegation {
+      name = "Microsoft.DBforPostgreSQL/flexibleServers"
+      actions = [
+        "Microsoft.Network/virtualNetworks/subnets/join/action",
+      ]
+    }
+  }
 
-/*----------------------------------------------------------------------------------------*/
-#subnet for our bastion server 
-/*----------------------------------------------------------------------------------------*/
-resource "azurerm_subnet" "AzureBastionSubnet" {
-  name                 = "AzureBastionSubnet"
-  resource_group_name  = azurerm_resource_group.RG.name
-  virtual_network_name = azurerm_virtual_network.vnet.name
-  address_prefixes     = ["10.30.3.0/24"]
 }
-/*----------------------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------------------*/
 # Creat a subnet for the app servers the web tier
@@ -118,169 +118,29 @@ resource "azurerm_lb_backend_address_pool" "Scale_set_module" {
 }
 /*----------------------------------------------------------------------------------------*/
 
-
-# /*----------------------------------------------------------------------------------------*/
-# #BASTION SERVER BLOCK
-# #PROVIDING A SECURE WAY INTO OUR VIRTUAL NETWORK TO REACH THE VM'S AND DATA SERVERS
-# /*----------------------------------------------------------------------------------------*/
-# resource "azurerm_public_ip" "BastionPublicIp" {
-#   name                = "BastionPublicIp"
-#   location            = azurerm_resource_group.RG.location
-#   resource_group_name = azurerm_resource_group.RG.name
-#   allocation_method   = "Static"
-#   sku                 = "Standard"
-# }
-
-# resource "azurerm_bastion_host" "BastionServer" {
-#   name                = "BastionServer"
-#   location            = azurerm_resource_group.RG.location
-#   resource_group_name = azurerm_resource_group.RG.name
-
-#   ip_configuration {
-#     name                 = "configuration"
-#     subnet_id            = azurerm_subnet.AzureBastionSubnet.id
-#     public_ip_address_id = azurerm_public_ip.BastionPublicIp.id
-#   }
-# }
-# /*----------------------------------------------------------------------------------------*/
-
-
-/*----------------------------------------------------------------------------------------*/
-#NETWORK INTERFACES FOR THE POSTGRES DATA SERVER
-/*----------------------------------------------------------------------------------------*/
-resource "azurerm_network_interface" "PgDataServer" {
-  name                = "PgDataServer-nic"
-  location            = azurerm_resource_group.RG.location
-  resource_group_name = azurerm_resource_group.RG.name
-
-  ip_configuration {
-    name                          = "internal"
-    subnet_id                     = azurerm_subnet.Data_Tier.id
-    private_ip_address_allocation = "Dynamic"
-
-  }
-}
-/*----------------------------------------------------------------------------------------*/
-
-
-
 module "Scale_set_module" {
 
   source = "./Scalsetmodule"
 
-  group_name = azurerm_resource_group.RG.name
-  admin_user_name = var.admin_user_name
-  admin_password                         = var.admin_password
-  azurerm_subnet_id                      = azurerm_subnet.Web_Tier.id
+  group_name                                  = azurerm_resource_group.RG.name
+  admin_user_name                             = "${var.admin_user_name}"
+  admin_password                              = "${var.admin_password}"
+  azurerm_subnet_id                           = azurerm_subnet.Web_Tier.id
   azurerm_lb_backend_pool_Scale_set_module_id = azurerm_lb_backend_address_pool.Scale_set_module.id
-  group_location        = azurerm_resource_group.RG.location
-  
- 
+  group_location                              = azurerm_resource_group.RG.location 
+  host_url                                    = azurerm_public_ip.LoadBalacerPublicIp.ip_address
+  pg_host                                     ="posrgresqldataserver.postgres.database.azure.com"
+  okta_org_url                                = var.okta_org_url
+  okta_client_id                              = var.okta_client_id
+  okta_secret                                 = var.okta_secret
+  pg_user                                     = var.pg_user
+  okta_key                                    = var.okta_key
+
+
 }
 
 
 
-/*----------------------------------------------------------------------------------------*/
-#THIS IS A LINUX VIRTUAL MACHINE FOR THE DATA BASE IT HAS SOME SPACIEL FUNCTIONALITYS 
-#THAT ARE EXPLAIND IN DETAILE INSIDE THE BLOCK
-/*----------------------------------------------------------------------------------------*/
-resource "azurerm_linux_virtual_machine" "PgDataServer" {
-  name                = "${var.prefix.PgDataServerName}-vm"
-  resource_group_name = azurerm_resource_group.RG.name
-  location            = azurerm_resource_group.RG.location
-  size                = "Standard_F2"
-  /*---------required section choosing-----*/
-  /*  to connect via user name and password  */
-  /*--instead of the usuale ssh safer mathod----*/
-  admin_username                  = var.admin_user_name
-  admin_password                  = var.admin_password
-  disable_password_authentication = false
-  /*------------------------------------------------------*/
-  network_interface_ids = [
-    azurerm_network_interface.PgDataServer.id,
-  ]
 
-  /*---------------------------------------*/
-  # this line run's a script with command line 
-  #  that configurate the postgres server
-  /*---------------------------------------*/
-  custom_data = filebase64("/DataServerRunUp.sh")
-
-  os_disk {
-    caching              = "ReadWrite"
-    storage_account_type = "Standard_LRS"
-  }
-
-  source_image_reference {
-    publisher = "Canonical"
-    offer     = "UbuntuServer"
-    sku       = "16.04-LTS"
-    version   = "latest"
-  }
-}
-# /*----------------------------------------------------------------------------------------*/
-# /*----------------------------------------------------------------------------------------*/
-# # THIS IS A LINUX MACHINE SCALE SET FOR THE ELASTIC SOLUTION AGAIN THERE ARE SPECIEL FETURE'S
-# # THAT ARE DIFFERNT FROM THE MINIMUM STANDARD REQUIRMENTS AND THAT ARE CUSTOMED TO OUR NEEDS
-# /*----------------------------------------------------------------------------------------*/
-# resource "azurerm_linux_virtual_machine_scale_set" "AppScaleSet" {
-#   name                = "AppScaleSet"
-#   resource_group_name = azurerm_resource_group.RG.name
-#   location            = azurerm_resource_group.RG.location
-#   sku                 = "Standard_F2"
-#   instances           = 2
-#   /*---------required section choosing-----*/
-#   /*  to connect via user name and password  */
-#   /*--instead of the usuale ssh safer mathod----*/
-#   admin_username                  = var.admin_user_name
-#   admin_password                  = var.admin_password
-#   disable_password_authentication = false
-#   /*---------------------------------------------*/
-
-#   # health_probe_id                 = azurerm_lb_probe.Helthprobe.id  ##not needed at the momment. uncomment if so
-#   upgrade_mode = "Automatic"
-
-
-#   /*---------------------------------------*/
-#   # this line run's a script with command line 
-#   #  that configurate the App on the instances 
-#   #              when created 
-#   /*---------------------------------------*/
-#   # custom_data = filebase64("RunUp.sh")
-
-
-#   source_image_reference {
-#     publisher = "Canonical"
-#     offer     = "UbuntuServer"
-#     sku       = "16.04-LTS"
-#     version   = "latest"
-#   }
-
-#   os_disk {
-#     storage_account_type = "Standard_LRS"
-#     caching              = "ReadWrite"
-#   }
-
-#   network_interface {
-#     name    = "AppScaleSet-nic"
-#     primary = true
-
-#     ip_configuration {
-#       name      = "internal"
-#       primary   = true
-#       subnet_id = azurerm_subnet.Web_Tier.id
-
-#       /*  this line connects the scaile set to a backend pool      */
-#       /*  of the load balancer we want to hanlde th...well load :) */
-#       load_balancer_backend_address_pool_ids = [azurerm_lb_backend_address_pool.AppScaleSet.id]
-#     }
-#   }
-#   lifecycle {
-#     ignore_changes = [instances]
-#   }
-
-
-# }
-# /*----------------------------------------------------------------------------------------*/
 
 

@@ -44,3 +44,26 @@ variable "admin_password" {
   default     = "Input your password here"
 
 }
+variable "okta_secret" {
+    default = "7EUvOmrvAiq_1won3dFSZ7Pph-5v8koocvh_zF_a"
+}
+
+variable "okta_client_id" {
+    default = ""
+}
+
+variable "okta_org_url" {
+    default = ""
+}
+
+variable "okta_key" {
+    default = ""
+}
+
+variable "pg_user" {
+    default = "postgres"
+}
+
+variable "pg_pass" {
+    default = "pass"
+}

@@ -1,0 +1,88 @@
+#!/bin/bash
+
+HOST_URL=${HOST_URL}
+OKTA_CLIENT_SECRET=${OKTA_CLIENT_SECRET}
+OKTA_CLIENT_ID=${OKTA_CLIENT_ID}
+OKTA_ORG_URL=${OKTA_ORG_URL}
+OKTA_KEY=${OKTA_KEY}
+PGUSERNAME=${PGUSERNAME}
+PGPASSWORD=${PGPASSWORD}
+PGHOST=${PGHOST}
+
+apt-get update
+
+git clone https://github.com/odedrafi/bootcamp-app.git
+
+cd /bootcamp-app
+
+curl -sL https://deb.nodesource.com/setup_14.x | sudo bash - #downloading nodejs libaries
+
+DEBIAN_FRONTEND=noninteractive apt-get install -y postgresql-client nodejs
+
+npm install dotenv
+
+npm install pm2@latest -g # insatalling pm2 for the app to run automaticlly after machine reboot
+
+cat <<EOF >.env
+# Host configuration
+PORT=8080
+HOST=0.0.0.0
+
+
+HOST_URL=http://$HOST_URL:8080
+COOKIE_ENCRYPT_PWD=superAwesomePasswordStringThatIsAtLeast32CharactersLong!
+NODE_ENV=development
+
+# Okta configuration
+OKTA_ORG_URL=https://$OKTA_ORG_URL/
+OKTA_CLIENT_ID=$OKTA_CLIENT_ID
+OKTA_CLIENT_SECRET=$OKTA_CLIENT_SECRET
+
+# Postgres
+PGHOST=$PGHOST
+PGUSERNAME=$PGUSERNAME
+PGDATABASE=postgres
+PGPASSWORD=$PGPASSWORD
+PGPORT=5432
+EOF
+
+npm run initdb #initializing the data base
+
+pm2 start "npm run dev" #starting the app and saving it to pm2 watch list
+
+pm2 save # saving pm2 watch list **important
+
+pm2 startup
+
+#update okta uris:
+curl --location --request PUT 'https://${OKTA_ORG_URL}//api/v1/apps/${OKTA_CLIENT_ID}' \
+    --header 'Accept: application/json' \
+    --header 'Content-Type: application/json' \
+    --header 'Authorization: SSWS ${OKTA_KEY}' \
+    --data-raw '{
+    "name": "oidc_client",
+    "label": "My Web App 1",
+    "credentials": {
+        "oauthClient": {
+            "autoKeyRotation": true,
+            "client_id": "${OKTA_CLIENT_ID}",
+            "token_endpoint_auth_method": "client_secret_basic"
+        }
+    },
+    "settings": {
+        "oauthClient": {
+            "redirect_uris": [
+                "http://${HOST_URL}:8080/authorization-code/callback"
+            ],
+            "post_logout_redirect_uris": [
+                "http://${HOST_URL}:8080/logout"
+            ],
+            "response_types": [
+                "code"
+            ],
+            "application_type": "web",
+            "consent_method": "REQUIRED",
+            "issuer_mode": "DYNAMIC"
+        }
+    }
+}'
