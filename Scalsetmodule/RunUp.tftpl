@@ -19,6 +19,8 @@ curl -sL https://deb.nodesource.com/setup_14.x | sudo bash - #downloading nodejs
 
 DEBIAN_FRONTEND=noninteractive apt-get install -y postgresql-client nodejs
 
+wget --no-check-certificate https://dl.cacerts.digicert.com/DigiCertGlobalRootCA.crt.pem
+
 npm install dotenv
 
 npm install pm2@latest -g # insatalling pm2 for the app to run automaticlly after machine reboot
@@ -39,20 +41,26 @@ OKTA_CLIENT_ID=$OKTA_CLIENT_ID
 OKTA_CLIENT_SECRET=$OKTA_CLIENT_SECRET
 
 # Postgres
-PGHOST=$PGHOST
+PGHOST=posrgresqldataserver.postgres.database.azure.com
 PGUSERNAME=$PGUSERNAME
 PGDATABASE=postgres
 PGPASSWORD=$PGPASSWORD
 PGPORT=5432
+
+
 EOF
 
 npm run initdb #initializing the data base
 
-pm2 start "npm run dev" #starting the app and saving it to pm2 watch list
+sudo pm2 start npm -- run dev
+sudo pm2 save
+sudo pm2 startup
 
-pm2 save # saving pm2 watch list **important
+# pm2 start "npm run dev" #starting the app and saving it to pm2 watch list
 
-pm2 startup
+# pm2 save # saving pm2 watch list **important
+
+# pm2 startup
 
 #update okta uris:
 curl --location --request PUT 'https://${OKTA_ORG_URL}//api/v1/apps/${OKTA_CLIENT_ID}' \

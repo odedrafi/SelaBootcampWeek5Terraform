@@ -4,51 +4,6 @@ resource "azurerm_resource_group" "RG" {
 }
 
 
-/*----------------------------------------------------------------------------------------*/
-# Create a virtual network
-/*----------------------------------------------------------------------------------------*/
-resource "azurerm_virtual_network" "vnet" {
-  name                = "${var.prefix.VnetName}-Net"
-  address_space       = var.address_space
-  location            = azurerm_resource_group.RG.location
-  resource_group_name = azurerm_resource_group.RG.name
-}
-/*----------------------------------------------------------------------------------------*/
-
-/*----------------------------------------------------------------------------------------*/
-# Creat a subnet for the data base
-/*----------------------------------------------------------------------------------------*/
-resource "azurerm_subnet" "Data_Tier" {
-  name                 = "Data_Tier"
-  resource_group_name  = azurerm_resource_group.RG.name
-  virtual_network_name = azurerm_virtual_network.vnet.name
-  address_prefixes     = ["10.30.2.0/24"]
-  # enforce_private_link_endpoint_network_policies = true
-    service_endpoints    = ["Microsoft.Storage"]
-  delegation {
-    name = "fs"
-    service_delegation {
-      name = "Microsoft.DBforPostgreSQL/flexibleServers"
-      actions = [
-        "Microsoft.Network/virtualNetworks/subnets/join/action",
-      ]
-    }
-  }
-
-}
-
-/*----------------------------------------------------------------------------------------*/
-# Creat a subnet for the app servers the web tier
-/*----------------------------------------------------------------------------------------*/
-resource "azurerm_subnet" "Web_Tier" {
-  name                 = "Web_Tier"
-  resource_group_name  = azurerm_resource_group.RG.name
-  virtual_network_name = azurerm_virtual_network.vnet.name
-  address_prefixes     = ["10.30.1.0/24"]
-
-
-}
-/*----------------------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------------------*/
 # Azure Public Ip for Load Balancer
@@ -92,6 +47,31 @@ resource "azurerm_lb_rule" "AcceseRole" {
   frontend_ip_configuration_name = "frontend-ip"
   backend_address_pool_ids       = [azurerm_lb_backend_address_pool.Scale_set_module.id]
   probe_id                       = azurerm_lb_probe.Helthprobe.id
+  disable_outbound_snat          = true
+}
+resource "azurerm_lb_rule" "ssh" {
+  resource_group_name            = azurerm_resource_group.RG.name
+  loadbalancer_id                = azurerm_lb.App-LoadBalacer.id
+  name                           = "ssh"
+  protocol                       = "Tcp"
+  frontend_port                  = 22
+  backend_port                   = 22
+  frontend_ip_configuration_name = "frontend-ip"
+  backend_address_pool_ids       = [azurerm_lb_backend_address_pool.Scale_set_module.id]
+  disable_outbound_snat          = true
+}
+
+
+resource "azurerm_lb_outbound_rule" "http" {
+  resource_group_name     = azurerm_resource_group.RG.name
+  loadbalancer_id         = azurerm_lb.App-LoadBalacer.id
+  name                    = "http"
+  protocol                = "Tcp"
+  backend_address_pool_id = azurerm_lb_backend_address_pool.Scale_set_module.id
+  frontend_ip_configuration {
+    name = "frontend-ip"
+  }
+
 }
 
 /*----------------------------------------------------------------------------------------*/
@@ -123,19 +103,20 @@ module "Scale_set_module" {
   source = "./Scalsetmodule"
 
   group_name                                  = azurerm_resource_group.RG.name
-  admin_user_name                             = "${var.admin_user_name}"
-  admin_password                              = "${var.admin_password}"
+  admin_user_name                             = var.admin_user_name
+  admin_password                              = var.admin_password
   azurerm_subnet_id                           = azurerm_subnet.Web_Tier.id
   azurerm_lb_backend_pool_Scale_set_module_id = azurerm_lb_backend_address_pool.Scale_set_module.id
-  group_location                              = azurerm_resource_group.RG.location 
+  group_location                              = azurerm_resource_group.RG.location
   host_url                                    = azurerm_public_ip.LoadBalacerPublicIp.ip_address
-  pg_host                                     ="posrgresqldataserver.postgres.database.azure.com"
+  pg_host                                     = "posrgresqldataserver.postgres.database.azure.com"
   okta_org_url                                = var.okta_org_url
   okta_client_id                              = var.okta_client_id
   okta_secret                                 = var.okta_secret
   pg_user                                     = var.pg_user
+  pg_pass                                     = var.pg_pass
   okta_key                                    = var.okta_key
-
+  depends_on                                  = [azurerm_lb.App-LoadBalacer]
 
 }
 

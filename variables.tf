@@ -10,11 +10,7 @@ STANDARD VERIABLES TO USE IN OUR CODE
 variable "prefix" {
   type = map(string)
   default = {
-    VnetName         = "HighAvailability"
-    AppServerName1   = "AppServer1"
-    AppServerName2   = "AppServer2"
-    AppServerName3   = "AppServer3"
-    PgDataServerName = "PgDataServer"
+    VnetName = "HighAvailability"
 
   }
 }
@@ -45,25 +41,28 @@ variable "admin_password" {
 
 }
 variable "okta_secret" {
-    default = "7EUvOmrvAiq_1won3dFSZ7Pph-5v8koocvh_zF_a"
+  default = "7EUvOmrvAiq_1won3dFSZ7Pph-5v8koocvh_zF_a"
 }
 
 variable "okta_client_id" {
-    default = ""
+  default = ""
 }
 
 variable "okta_org_url" {
-    default = ""
+  default = ""
 }
 
 variable "okta_key" {
-    default = ""
+  default = ""
 }
 
 variable "pg_user" {
-    default = "postgres"
+  default = "postgres"
 }
 
 variable "pg_pass" {
-    default = "pass"
+  default = "pass"
+}
+variable "pg_host" {
+  default = ""
 }
