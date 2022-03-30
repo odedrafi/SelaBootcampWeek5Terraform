@@ -6,4 +6,3 @@ terraform.tfstate
 terraform.tfstate.backup
 terraform.tfvars
 README.md
-README2.md
