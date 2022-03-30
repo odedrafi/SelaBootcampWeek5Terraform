@@ -31,4 +31,4 @@ It includes:
 first you need to install terraform and connect to azure provider as explained in
 [Install Terraform - HashiCorp Learn](https://learn.hashicorp.com/tutorials/terraform/install-cli).
 
-![This is an image](carbon.png)
+![This is an image](2.png)
