@@ -5,4 +5,4 @@ DataServerRunUp.sh
 terraform.tfstate
 terraform.tfstate.backup
 terraform.tfvars
-README.md
+Scalsetmodule/README.md
