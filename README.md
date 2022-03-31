@@ -28,7 +28,7 @@ It includes:
 
 ## Deployment
 
-first you need to install terraform and connect to azure provider as explained in
+First you need to install terraform and connect to azure provider as explained in
 [Install Terraform - HashiCorp Learn](https://learn.hashicorp.com/tutorials/terraform/install-cli).
 
 Inorder to tun the template you will need to create a terraform.tfvar file to update your secret data.
