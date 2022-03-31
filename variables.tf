@@ -7,13 +7,17 @@ STANDARD VERIABLES TO USE IN OUR CODE
 */
 
 
-variable "prefix" {
-  type = map(string)
-  default = {
-    VnetName = "HighAvailability"
+variable "VnetName" {
+  default = "Vnet"
 
-  }
+
 }
+variable "ScaleSetName" {
+  default = "AppScaleSet"
+
+
+}
+
 
 variable "address_space" {
   type    = list(any)
@@ -63,6 +67,8 @@ variable "pg_user" {
 variable "pg_pass" {
   default = "pass"
 }
-variable "pg_host" {
-  default = ""
+variable "instance_num" {
+  default     = 2
+  description = "scale set min instance num to differ the Staging and Production workspaces"
 }
+

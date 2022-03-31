@@ -6,3 +6,6 @@ terraform.tfstate
 terraform.tfstate.backup
 terraform.tfvars
 Scalsetmodule/README.md
+terraform.tfstate.d/
+Staging.tfvars
+Prod.tfvars

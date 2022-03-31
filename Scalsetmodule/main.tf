@@ -16,11 +16,11 @@ terraform {
 # THAT ARE DIFFERNT FROM THE MINIMUM STANDARD REQUIRMENTS AND THAT ARE CUSTOMED TO OUR NEEDS
 /*----------------------------------------------------------------------------------------*/
 resource "azurerm_linux_virtual_machine_scale_set" "AppScaleSet" {
-  name                = "AppScaleSet"
+  name                = var.ScaleSetName
   resource_group_name = var.group_name
   location            = var.group_location
   sku                 = "Standard_F2"
-  instances           = 2
+  instances           = var.instance_num
   /*---------required section choosing-----*/
   /*  to connect via user name and password  */
   /*--instead of the usuale ssh safer mathod----*/

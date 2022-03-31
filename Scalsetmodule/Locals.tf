@@ -11,6 +11,6 @@ locals {
     OKTA_KEY = var.okta_key
     PGUSERNAME = var.pg_user
     PGPASSWORD = var.pg_pass
-    PGHOST = var.pg_host
+    PGHOST = "${var.pg_host}.postgres.database.azure.com"
   }
 }

@@ -1,3 +1,15 @@
+variable "VnetName" {
+    default     = "Vnet"
+    
+
+}
+variable "ScaleSetName" {
+    default = "AppScaleSet"
+    
+
+}
+
+
 variable group_name {
   type  = string
 }
@@ -57,6 +69,10 @@ variable "host_url" {
 variable "pg_host" {
     default = ""
 }
+variable "instance_num" {
+    default = 2
+}
+
 
 
 

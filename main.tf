@@ -109,7 +109,7 @@ module "Scale_set_module" {
   azurerm_lb_backend_pool_Scale_set_module_id = azurerm_lb_backend_address_pool.Scale_set_module.id
   group_location                              = azurerm_resource_group.RG.location
   host_url                                    = azurerm_public_ip.LoadBalacerPublicIp.ip_address
-  pg_host                                     = "posrgresqldataserver.postgres.database.azure.com"
+  pg_host                                     = azurerm_postgresql_flexible_server.PosrgreSQLFlexibleDataServer.name          /*"hakolzorem.postgres.database.azure.com"*/
   okta_org_url                                = var.okta_org_url
   okta_client_id                              = var.okta_client_id
   okta_secret                                 = var.okta_secret
@@ -117,7 +117,9 @@ module "Scale_set_module" {
   pg_pass                                     = var.pg_pass
   okta_key                                    = var.okta_key
   depends_on                                  = [azurerm_lb.App-LoadBalacer]
-
+  instance_num                                = var.instance_num
+  ScaleSetName                                = var.ScaleSetName
+  VnetName                                    = var.VnetName
 }
 
 
