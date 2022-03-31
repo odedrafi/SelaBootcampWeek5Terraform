@@ -31,4 +31,25 @@ It includes:
 first you need to install terraform and connect to azure provider as explained in
 [Install Terraform - HashiCorp Learn](https://learn.hashicorp.com/tutorials/terraform/install-cli).
 
+Inorder to tun the template you will need to create a terraform.tfvar file to update your secret data.
+
+the parametrs can be seen in the example below:
 ![This is an image](2.png)
+
+Using git, clone the repository to your local machine.
+
+_and run the foolowing commmand:_
+
+- Initialize Terraform working directory
+
+  terraform init
+
+- To deploy the enviroment:
+
+  > terraform plan
+
+  > terraform apply
+
+- To destroy the enviroment:
+
+  > terraform destroy
