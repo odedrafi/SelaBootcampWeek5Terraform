@@ -26,6 +26,10 @@ It includes:
 
 ---
 
+### Enviroment goals
+
+![Enviroment goals](week-6-envs.png)
+
 ## Deployment
 
 First you need to install terraform and connect to azure provider as explained in
