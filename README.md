@@ -44,9 +44,11 @@ First you need to install terraform and connect to azure provider as explained i
 Inorder to tun the template you will need to create an (Enviroment).tfvar file to update your secret data.
 
 for the Staging enviroment:
+
 ![This is an image](StagingVarsImg.png)
 
 for the Production enviroment:
+
 ![This is an image](ProductionVarsImg.png)
 
 Using git, clone the repository to your local machine.
@@ -66,3 +68,5 @@ _and run the foolowing commmand:_
 - To destroy the enviroment:
 
   > terraform destroy
+
+Inorder to configure the whgit tracker app on our server you can follow instraction on [Ansible dconfigure code](https://github.com/odedrafi/AnsibleCode.git).
