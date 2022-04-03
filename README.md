@@ -1,4 +1,10 @@
+<img src="https://user-images.githubusercontent.com/71599740/140194394-8d8b8fe8-a7d6-4b2b-938e-e5b00dea3bd4.png" width="130" height="100"/>
+
+---
+
 ![This is an image](provisioning_infrastructure_with_terraform.png)
+
+---
 
 # Description
 
@@ -12,7 +18,7 @@ on that infrastructure we are going to deploy a Node.js Weight Trackerr App.
 
 ## Notes
 
-In this project we will demostrate an elastic high avalibility network on azure cloud provisined with terraform.
+In this project we will demostrate an elastic high avalibility network on azure cloud provisined with terraform. I also add a contoller machine in the web tier to configure the app.
 
 As part of a DevOps bootcamp is sela accademy [Sela DevOps Bootcamp Page](https://rhinops.io/bootcamp).
 
@@ -35,10 +41,13 @@ It includes:
 First you need to install terraform and connect to azure provider as explained in
 [Install Terraform - HashiCorp Learn](https://learn.hashicorp.com/tutorials/terraform/install-cli).
 
-Inorder to tun the template you will need to create a terraform.tfvar file to update your secret data.
+Inorder to tun the template you will need to create an (Enviroment).tfvar file to update your secret data.
 
-the parametrs can be seen in the example below:
-![This is an image](2.png)
+for the Staging enviroment:
+![This is an image](StagingVarsImg.png)
+
+for the Production enviroment:
+![This is an image](ProductionVarsImg.png)
 
 Using git, clone the repository to your local machine.
 
@@ -48,11 +57,11 @@ _and run the foolowing commmand:_
 
   terraform init
 
-- To deploy the enviroment:
+- To deploy the enviroment :
 
-  > terraform plan
+  > terraform plan -var-file Staging.tfvars
 
-  > terraform apply
+  > terraform apply -var-file Production.tfvars
 
 - To destroy the enviroment:
 

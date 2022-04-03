@@ -7,6 +7,16 @@ STANDARD VERIABLES TO USE IN OUR CODE
 */
 
 
+variable "RG" {
+
+  default = "RG"
+}
+
+
+variable "tags" {
+
+  default = "enviroment"
+}
 variable "VnetName" {
   default = "Vnet"
 
@@ -34,7 +44,7 @@ variable "location" {
 
 variable "admin_user_name" {
   type        = string
-  description = "user name vor vm login"
+  description = "user name for vm login"
   default     = "Input your user name"
 
 }

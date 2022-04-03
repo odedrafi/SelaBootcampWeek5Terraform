@@ -19,7 +19,7 @@ resource "azurerm_linux_virtual_machine_scale_set" "AppScaleSet" {
   name                = var.ScaleSetName
   resource_group_name = var.group_name
   location            = var.group_location
-  sku                 = "Standard_F2"
+  sku                 = "Standard_B1ls"
   instances           = var.instance_num
   /*---------required section choosing-----*/
   /*  to connect via user name and password  */
@@ -38,7 +38,7 @@ resource "azurerm_linux_virtual_machine_scale_set" "AppScaleSet" {
   #  that configurate the App on the instances 
   #              when created 
   /*---------------------------------------*/
-  custom_data = base64encode(templatefile("./Scalsetmodule/RunUp.tftpl",local.vars))
+  #custom_data = base64encode(templatefile("./Scalsetmodule/RunUp.tftpl",local.vars))
 
 
   source_image_reference {
@@ -70,7 +70,9 @@ resource "azurerm_linux_virtual_machine_scale_set" "AppScaleSet" {
   lifecycle {
     ignore_changes = [instances]
   }
-
+    tags ={
+    name = var.tags
+  }
 
 }
 /*----------------------------------------------------------------------------------------*/

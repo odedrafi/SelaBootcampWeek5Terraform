@@ -1,6 +1,9 @@
 resource "azurerm_resource_group" "RG" {
-  name     = "Week5ProjectNet"
+  name     = var.RG 
   location = var.location
+  tags = {
+    name = var.tags
+  }
 }
 
 
@@ -14,6 +17,10 @@ resource "azurerm_public_ip" "LoadBalacerPublicIp" {
   location            = azurerm_resource_group.RG.location
   allocation_method   = "Static"
   sku                 = "Standard"
+
+    tags =  {
+    name = var.tags
+  }
 }
 /*----------------------------------------------------------------------------------------*/
 /*----------------------------------------------------------------------------------------*/
@@ -48,6 +55,7 @@ resource "azurerm_lb_rule" "AcceseRole" {
   backend_address_pool_ids       = [azurerm_lb_backend_address_pool.Scale_set_module.id]
   probe_id                       = azurerm_lb_probe.Helthprobe.id
   disable_outbound_snat          = true
+
 }
 resource "azurerm_lb_rule" "ssh" {
   resource_group_name            = azurerm_resource_group.RG.name
@@ -59,6 +67,7 @@ resource "azurerm_lb_rule" "ssh" {
   frontend_ip_configuration_name = "frontend-ip"
   backend_address_pool_ids       = [azurerm_lb_backend_address_pool.Scale_set_module.id]
   disable_outbound_snat          = true
+
 }
 
 
@@ -82,6 +91,7 @@ resource "azurerm_lb_probe" "Helthprobe" {
   loadbalancer_id     = azurerm_lb.App-LoadBalacer.id
   name                = "Helthprobe"
   port                = 8080
+
 }
 /*----------------------------------------------------------------------------------------*/
 
@@ -94,7 +104,9 @@ resource "azurerm_lb_backend_address_pool" "Scale_set_module" {
   name            = "Scale_set_module"
   depends_on = [
     azurerm_lb.App-LoadBalacer
+    
   ]
+
 }
 /*----------------------------------------------------------------------------------------*/
 
@@ -109,7 +121,7 @@ module "Scale_set_module" {
   azurerm_lb_backend_pool_Scale_set_module_id = azurerm_lb_backend_address_pool.Scale_set_module.id
   group_location                              = azurerm_resource_group.RG.location
   host_url                                    = azurerm_public_ip.LoadBalacerPublicIp.ip_address
-  pg_host                                     = azurerm_postgresql_flexible_server.PosrgreSQLFlexibleDataServer.name          /*"hakolzorem.postgres.database.azure.com"*/
+  pg_host                                     = azurerm_postgresql_flexible_server.PosrgreSQLFlexibleDataServer.name /*"hakolzorem.postgres.database.azure.com"*/
   okta_org_url                                = var.okta_org_url
   okta_client_id                              = var.okta_client_id
   okta_secret                                 = var.okta_secret
@@ -120,6 +132,7 @@ module "Scale_set_module" {
   instance_num                                = var.instance_num
   ScaleSetName                                = var.ScaleSetName
   VnetName                                    = var.VnetName
+
 }
 
 

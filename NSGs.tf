@@ -9,6 +9,7 @@
 resource "azurerm_subnet_network_security_group_association" "NSG1" {
   subnet_id                 = azurerm_subnet.Web_Tier.id
   network_security_group_id = azurerm_network_security_group.NSG1.id
+
 }
 
 resource "azurerm_network_security_group" "NSG1" {
@@ -50,7 +51,6 @@ resource "azurerm_subnet_network_security_group_association" "NSG2_association" 
   subnet_id                 = azurerm_subnet.Data_Tier.id
   network_security_group_id = azurerm_network_security_group.NSG2.id
 
-
 }
 /* BECAUSE WE WANT THE DATA TIER TO REMAINE "HIDDEN" TO OUTSIDE EYES WE CAN LEAVE THE STANDARD  */
 /* AZURE NSG BLOCK THAT ALLOWS ONLY INSIDE NETWORK COMUNICATIONS                                */
@@ -68,6 +68,17 @@ resource "azurerm_network_security_group" "NSG2" {
     source_port_range          = "5432"
     destination_port_range     = "5432"
     source_address_prefix      = "VirtualNetwork"
+    destination_address_prefix = "*"
+  }
+  security_rule {
+    name                       = "controller access"
+    priority                   = 111
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "22"
+    destination_port_range     = "22"
+    source_address_prefix      = "79.178.9.59"
     destination_address_prefix = "*"
   }
 

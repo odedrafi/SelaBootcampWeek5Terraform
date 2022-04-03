@@ -8,7 +8,10 @@ variable "ScaleSetName" {
     
 
 }
+variable "tags" {
 
+  default = "enviroment"
+}
 
 variable group_name {
   type  = string
