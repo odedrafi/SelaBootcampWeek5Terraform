@@ -14,7 +14,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "DNS_Zone_VN_Link" {
 }
 
 resource "azurerm_postgresql_flexible_server" "PosrgreSQLFlexibleDataServer" {
-  name                   = "thegreatdataofproduction"
+  name                   = "thegreatdataproduction"
   resource_group_name    = azurerm_resource_group.RG.name
   location               = azurerm_resource_group.RG.location
   version                = "12"
@@ -28,8 +28,8 @@ resource "azurerm_postgresql_flexible_server" "PosrgreSQLFlexibleDataServer" {
 
 
   sku_name = "GP_Standard_D4s_v3"
-    
-    tags = {
+
+  tags = {
     name = var.tags
   }
 

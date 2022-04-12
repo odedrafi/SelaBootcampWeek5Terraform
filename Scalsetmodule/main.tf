@@ -19,7 +19,7 @@ resource "azurerm_linux_virtual_machine_scale_set" "AppScaleSet" {
   name                = var.ScaleSetName
   resource_group_name = var.group_name
   location            = var.group_location
-  sku                 = "Standard_B1ls"
+  sku                 = "Standard_B20ms"
   instances           = var.instance_num
   /*---------required section choosing-----*/
   /*  to connect via user name and password  */

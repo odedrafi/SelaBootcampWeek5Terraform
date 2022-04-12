@@ -25,7 +25,7 @@ resource "azurerm_linux_virtual_machine" "Controller" {
   location                        = azurerm_resource_group.RG.location
   resource_group_name             = azurerm_resource_group.RG.name
   network_interface_ids           = [azurerm_network_interface.AnsibleNic.id]
-  size                            = "Standard_B1ls"
+  size                            = "Standard_F2"#Standard_B1ls
   admin_username                  = var.admin_user_name
   admin_password                  = var.admin_password
   disable_password_authentication = false
@@ -41,7 +41,7 @@ resource "azurerm_linux_virtual_machine" "Controller" {
     sku       = "18.04-LTS"
     version   = "latest"
   }
-      tags ={
+  tags = {
     name = var.tags
   }
 

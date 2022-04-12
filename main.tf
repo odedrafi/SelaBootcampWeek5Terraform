@@ -1,5 +1,5 @@
 resource "azurerm_resource_group" "RG" {
-  name     = var.RG 
+  name     = var.RG
   location = var.location
   tags = {
     name = var.tags
@@ -18,7 +18,7 @@ resource "azurerm_public_ip" "LoadBalacerPublicIp" {
   allocation_method   = "Static"
   sku                 = "Standard"
 
-    tags =  {
+  tags = {
     name = var.tags
   }
 }
@@ -104,7 +104,7 @@ resource "azurerm_lb_backend_address_pool" "Scale_set_module" {
   name            = "Scale_set_module"
   depends_on = [
     azurerm_lb.App-LoadBalacer
-    
+
   ]
 
 }

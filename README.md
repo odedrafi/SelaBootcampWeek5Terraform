@@ -2,7 +2,7 @@
 
 ---
 
-![This is an image](provisioning_infrastructure_with_terraform.png)
+![This is an image](pictures/provisioning_infrastructure_with_terraform.png)
 
 ---
 
@@ -34,7 +34,7 @@ It includes:
 
 ### Enviroment goals
 
-![Enviroment goals](week-6-envs.png)
+![Enviroment goals picture](pictures/week-6-envs.png)
 
 ## Deployment
 
@@ -45,11 +45,11 @@ Inorder to tun the template you will need to create an (Enviroment).tfvar file t
 
 for the Staging enviroment:
 
-![This is an image](StagingVarsImg.png)
+![This is an image](pictures/StagingVarsImg.png)
 
 for the Production enviroment:
 
-![This is an image](ProductionVarsImg.png)
+![This is an image](pictures/ProductionVarsImg.png)
 
 Using git, clone the repository to your local machine.
 
