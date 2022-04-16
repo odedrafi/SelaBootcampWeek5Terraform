@@ -9,3 +9,4 @@ Scalsetmodule/README.md
 terraform.tfstate.d/
 Staging.tfvars
 Prod.tfvars
+.tftpl
