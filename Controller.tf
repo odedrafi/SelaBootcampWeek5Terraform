@@ -1,4 +1,9 @@
 
+#################################################################
+##                                                             ##
+## avirtual machine for the pipelne agent and the ansible host ##
+##                                                             ##
+#################################################################
 
 resource "azurerm_public_ip" "AnsiblePuBLICIp" {
   name                = "AnsiblePuBLICIp"
