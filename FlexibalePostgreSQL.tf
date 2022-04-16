@@ -14,7 +14,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "DNS_Zone_VN_Link" {
 }
 
 resource "azurerm_postgresql_flexible_server" "PosrgreSQLFlexibleDataServer" {
-  name                   = "thegreatdataproduction"
+  name                   = "thegreatdataproduction" ## change name to -thegreatdata(of)production- for staging enviroment
   resource_group_name    = azurerm_resource_group.RG.name
   location               = azurerm_resource_group.RG.location
   version                = "12"

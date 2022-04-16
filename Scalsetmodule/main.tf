@@ -29,7 +29,7 @@ resource "azurerm_linux_virtual_machine_scale_set" "AppScaleSet" {
   disable_password_authentication = false
   /*---------------------------------------------*/
 
-  # health_probe_id                 = azurerm_lb_probe.Helthprobe.id  ##not needed at the momment. uncomment if so
+  # health_probe_id               = azurerm_lb_probe.Helthprobe.id  ##not needed at the momment. uncomment if so
   upgrade_mode = "Automatic"
 
 
@@ -38,6 +38,7 @@ resource "azurerm_linux_virtual_machine_scale_set" "AppScaleSet" {
   #  that configurate the App on the instances 
   #              when created 
   /*---------------------------------------*/
+
   #custom_data = base64encode(templatefile("./Scalsetmodule/RunUp.tftpl",local.vars))
 
 
